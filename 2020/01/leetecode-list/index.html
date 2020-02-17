@@ -1,0 +1,242 @@
+<!doctype html><html lang=zh><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>[LeetCode] 链表 | Edison's blog | Java Developer</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=Description content="Edison的个人blog"><link rel=prev href=https://Edisonzjs.github.io/2020/01/aqs/><link rel=next href=https://Edisonzjs.github.io/2020/01/pass-by-val/><link rel=canonical href=https://Edisonzjs.github.io/2020/01/leetecode-list/><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><meta name=twitter:card content="summary"><meta name=twitter:title content="[LeetCode]	链表"><meta name=twitter:description content="声明：下面的所有代码都基于此链表类 1 2 3 4 public class ListNode { int data; ListNode next; } 1.删除某个节点 Question：给定一个链表，删除链表的倒数第n个节点，并返回"><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"[LeetCode]\t链表","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/Edisonzjs.github.io\/2020\/01\/leetecode-list\/"},"image":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/cover.png","width":800,"height":600},"genre":"posts","keywords":"LeetCode","wordcount":1665,"url":"https:\/\/Edisonzjs.github.io\/2020\/01\/leetecode-list\/","datePublished":"2020-01-15T20:31:40\x2b08:00","dateModified":"2020-01-15T20:31:40\x2b08:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"XXXX","logo":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/logo.png","width":127,"height":40}},"description":""}</script><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/css/lib/fontawesome-free/all.min.min.css><link rel=stylesheet href=/css/lib/animate/animate.min.min.css></head><body><script>window.isDark=(window.localStorage&&window.localStorage.getItem('theme'))==='dark';window.isDark&&document.body.classList.add('dark-theme');</script><div class=wrapper><nav class=navbar><div class=navbar-container><div class="navbar-header animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=navbar-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><nav class=navbar-mobile><div class=navbar-container><div class=navbar-header><div class="navbar-header-title animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=menu-toggle id=menu-toggle><span></span><span></span><span></span></div></div><div class=navbar-menu id=mobile-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><main class=main><div class=container><article class=post-warp><h1 class="post-title animated flipInX">[LeetCode] 链表</h1><div class=post-meta><div class=post-meta-main><a class=author href=https://Edisonzjs.github.io/ rel=author><i class="fas fa-user-circle fa-fw"></i>Edison&nbsp;</a>
+<span class=post-category>收录于
+<i class="far fa-folder fa-fw"></i><a href=https://Edisonzjs.github.io/categories/leetcode/>LeetCode</a></span></div><div class=post-meta-other><i class="far fa-calendar-alt fa-fw"></i><time datetime=2020-01-15>2020-01-15</time>&nbsp;
+<i class="fas fa-pencil-alt fa-fw"></i>约 1665 字&nbsp;
+<i class="far fa-clock fa-fw"></i>预计阅读 4 分钟&nbsp;</div></div><div class=post-toc id=post-toc><h2 class=post-toc-title>目录</h2><div class=post-toc-content><nav id=TableOfContents><ul><li><ul><li></li></ul></li><li><a href=#1删除某个节点>1.删除某个节点</a></li><li><a href=#2判断链表中是否有环>2.判断链表中是否有环</a></li><li><a href=#3求出环的长度>3.求出环的长度</a></li><li><a href=#4求入环点的位置>4.求入环点的位置</a></li><li><a href=#5分割链表>5.分割链表</a></li><li><a href=#6反转链表>6.反转链表</a></li></ul></nav></div></div><div class=post-toc-mobile id=post-toc-mobile><details><summary><div class=post-toc-title><span>目录</span><span><i class="details icon fas fa-angle-down"></i></span></div></summary><div class=post-toc-content><nav id=TableOfContentsMobile><ul><li><ul><li></li></ul></li><li><a href=#1删除某个节点>1.删除某个节点</a></li><li><a href=#2判断链表中是否有环>2.判断链表中是否有环</a></li><li><a href=#3求出环的长度>3.求出环的长度</a></li><li><a href=#4求入环点的位置>4.求入环点的位置</a></li><li><a href=#5分割链表>5.分割链表</a></li><li><a href=#6反转链表>6.反转链表</a></li></ul></nav></div></details></div><div class=post-content><a class=post-dummy-target id=声明下面的所有代码都基于此链表类></a><h4>声明：下面的所有代码都基于此链表类</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>ListNode</span> <span class=o>{</span>
+	<span class=kt>int</span> <span class=n>data</span><span class=o>;</span>
+	<span class=n>ListNode</span> <span class=n>next</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=1删除某个节点></a><h2>1.删除某个节点</h2><p>Question：给定一个链表，删除链表的倒数第n个节点，并返回链表的头节点。</p><p>思路：可以采用快慢指针，链表的很多问题都可以用快慢指针来解决。让快指针fast先走n-1步后，慢指针slow再开始走，当fast指向尾节点时，此时slow指向的就是要删除的节点。为了方便，我们可以创建一个哑节点。实际让fast先走n步，这样当fast指向尾节点时，slow指向的就是被删除节点的前一个节点，直接修改next指针就可以了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=n>ListNode</span> <span class=nf>removeFromLast</span><span class=o>(</span><span class=n>ListNode</span> <span class=n>head</span><span class=o>,</span> <span class=kt>int</span> <span class=n>n</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>ListNode</span> <span class=n>dummy</span> <span class=o>=</span> <span class=k>new</span> <span class=n>ListNode</span><span class=o>(</span><span class=n>0</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>dummy</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=n>ListNode</span> <span class=n>fast</span> <span class=o>=</span> <span class=n>dummy</span><span class=o>;</span>
+        <span class=n>ListNode</span> <span class=n>slow</span> <span class=o>=</span> <span class=n>dummy</span><span class=o>;</span>
+
+        <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=k>if</span> <span class=o>(</span><span class=n>n</span><span class=o>-</span><span class=o>-</span> <span class=o>&lt;</span> <span class=n>0</span><span class=o>)</span> <span class=o>{</span>
+                <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=o>}</span>
+        <span class=o>}</span>
+        <span class=n>slow</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=k>return</span> <span class=n>dummy</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+    <span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=2判断链表中是否有环></a><h2>2.判断链表中是否有环</h2><p>Question：给定一个链表，判断链表中是否存在环。</p><p>思路：还记得我们初中数学学的环形操作追及问题吗？两个不同速度的人在一个环形的操场上奔跑终会相遇。因此此题可以用快慢指针来解决。快指针fast步长为2，慢指针slow步长为1，直到fast.next.next = null，如果fast和slow相遇，则说明链表中存在环。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kt>boolean</span> <span class=nf>isCycle</span><span class=o>(</span><span class=n>Node</span> <span class=n>head</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>ListNode</span> <span class=n>fast</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=n>ListNode</span> <span class=n>slow</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+         	<span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=k>if</span> <span class=o>(</span><span class=n>fast</span> <span class=o>=</span><span class=o>=</span> <span class=n>slow</span><span class=o>)</span> <span class=o>{</span>
+                <span class=k>return</span> <span class=kc>true</span><span class=o>;</span>
+            <span class=o>}</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=kc>false</span><span class=o>;</span>
+    <span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=3求出环的长度></a><h2>3.求出环的长度</h2><p>Question：拓展问题2，如果链表中存在环，请求出环的长度。</p><p>思路：fast和slow的每次相遇，fast就比slow多走了整整一圈。因此我们在slow和fast首次相遇时，slow呆在原地不动，让fast继续前进，当fast回到slow位置时，就是走了一圈，也就是环的长度。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kt>int</span> <span class=nf>getLength</span><span class=o>(</span><span class=n>ListNode</span> <span class=n>head</span><span class=o>)</span><span class=o>{</span>
+        <span class=n>ListNode</span> <span class=n>fast</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=n>ListNode</span> <span class=n>slow</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=kt>boolean</span> <span class=n>isCycle</span> <span class=o>=</span> <span class=kc>false</span><span class=o>;</span>
+        <span class=kt>int</span> <span class=n>len</span> <span class=o>=</span> <span class=n>0</span><span class=o>;</span>
+        <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span><span class=o>{</span>
+            <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=k>if</span> <span class=o>(</span><span class=n>fast</span> <span class=o>=</span><span class=o>=</span> <span class=n>slow</span><span class=o>)</span><span class=o>{</span>
+                <span class=n>isCycle</span> <span class=o>=</span> <span class=kc>true</span><span class=o>;</span>
+                <span class=k>break</span><span class=o>;</span>
+            <span class=o>}</span>
+        <span class=o>}</span>
+
+        <span class=k>if</span> <span class=o>(</span><span class=n>isCycle</span><span class=o>)</span><span class=o>{</span>
+            <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=n>len</span><span class=o>+</span><span class=o>+</span><span class=o>;</span>
+            <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=n>slow</span><span class=o>)</span><span class=o>{</span>
+                <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+                <span class=n>len</span><span class=o>+</span><span class=o>+</span><span class=o>;</span>
+            <span class=o>}</span>
+            <span class=k>return</span> <span class=n>len</span><span class=o>;</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=n>len</span><span class=o>;</span>
+    <span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=4求入环点的位置></a><h2>4.求入环点的位置</h2><p>Question：拓展问题2，如果存在环，请求出入环点。</p><p><img src=https://i.loli.net/2020/01/16/Lnxky2tAlM3BSXZ.png alt=未命名文件.png></p><p>思考：假设从链表头节点到入环点的距离为L，入环点到首次相遇点的距离为S₁，从首次相遇点回到入环点的距离为S₂。可以确定的是，当指针fast和slow首次相遇时，fast比slow多走了n(n ≧ 1)圈。由上图可知：当fast和slow首次相遇时，slow行进的距离是：L + S₁。fast行进的距离是：L + n(S₁ + S₂) + S₁。</p><p>假设fast步长为2，slow的步长为1。因为fast的速度是slow的2倍，那么同样的时间，fast所走的距离也是slow的2倍。由此可得：</p><p>        <code> 2(L + S₁) = L + n(S₁ + S₂) + S₁</code></p><p>整理式子得到：   <code>L = (n-1)(S₁ + S₂) + S₂</code></p><p>也就是说从链表头节点到入环点的距离L，等于指针从首次相遇点绕环n-1圈，再回到入环点的距离。这样一来，在slow和fast首次相遇时，让其中一个指针回到头节点的位置，然后两个指针以步长为1的速度前进，最终相遇的地方就是入环点。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=n>ListNode</span> <span class=nf>getCrosspoint</span><span class=o>(</span><span class=n>ListNode</span> <span class=n>head</span><span class=o>)</span> <span class=o>{</span>
+    <span class=n>ListNode</span> <span class=n>fast</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+    <span class=n>ListNode</span> <span class=n>slow</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+	<span class=kt>boolean</span> <span class=n>flag</span> <span class=o>=</span> <span class=kc>false</span><span class=o>;</span>
+    
+    <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>fast</span> <span class=o>=</span><span class=o>=</span> <span class=n>slow</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>flag</span> <span class=o>=</span> <span class=kc>true</span><span class=o>;</span>
+            <span class=k>break</span><span class=o>;</span>
+        <span class=o>}</span>
+    <span class=o>}</span>
+    
+    <span class=k>if</span> <span class=o>(</span><span class=n>flag</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>fast</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=k>while</span> <span class=o>(</span><span class=n>fast</span> <span class=o>!</span><span class=o>=</span> <span class=n>slow</span><span class=o>)</span> <span class=o>{</span>
+        	<span class=n>fast</span> <span class=o>=</span> <span class=n>fast</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+            <span class=n>slow</span> <span class=o>=</span> <span class=n>slow</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=n>fast</span><span class=o>;</span>
+    <span class=o>}</span>
+    <span class=k>return</span> <span class=kc>null</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=5分割链表></a><h2>5.分割链表</h2><p>Question：给定一个链表和一个值K，使得所有小于K的节点在大于等于K的节点的前面。</p><p>思路：可以把链表按照值K拆分成两个链表before和after，并持有这两个链表的头节点。遍历原始链表，把节点放入before或after，结束后合并这两个链表即可。需要注意避免出现环形链表。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=n>ListNode</span> <span class=nf>partition</span><span class=o>(</span><span class=n>ListNode</span> <span class=n>head</span><span class=o>,</span><span class=kt>int</span> <span class=n>k</span><span class=o>)</span> <span class=o>{</span>
+	<span class=n>ListNode</span> <span class=n>before_head</span> <span class=o>=</span> <span class=k>new</span> <span class=n>ListNode</span><span class=o>(</span><span class=n>0</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>ListNode</span> <span class=n>before</span> <span class=o>=</span> <span class=n>before_head</span><span class=o>;</span>
+    <span class=n>ListNode</span> <span class=n>after_head</span> <span class=o>=</span> <span class=k>new</span> <span class=n>ListNode</span><span class=o>(</span><span class=n>0</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>ListNode</span> <span class=n>after</span> <span class=o>=</span> <span class=n>after_head</span><span class=o>;</span>
+    
+    <span class=k>while</span> <span class=o>(</span><span class=n>head</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>head</span><span class=o>.</span><span class=na>data</span> <span class=o>&lt;</span> <span class=n>k</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>before</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+            <span class=n>before</span> <span class=o>=</span> <span class=n>before</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=o>}</span><span class=k>else</span> <span class=o>{</span>
+            <span class=n>after</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+            <span class=n>after</span> <span class=o>=</span> <span class=n>after</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+        <span class=o>}</span>
+        
+        <span class=n>head</span> <span class=o>=</span> <span class=n>head</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+    <span class=o>}</span>
+    
+    <span class=c1>// 避免出现环形链表
+</span><span class=c1></span>    <span class=n>after</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=kc>null</span><span class=o>;</span>
+    <span class=n>before</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>after_head</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+    <span class=k>return</span> <span class=n>before_head</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=6反转链表></a><h2>6.反转链表</h2><p>Question：给定一个链表，请将链表反转过来。例如链表1 -> 2 -> 3 -> 4，反转后4 -> 3 -> 2 -> 1</p><p>思路：遍历链表时将前一个元素存储起来。需要注意引用的更改，不会造成意想不到的错误。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>static</span> <span class=n>ListNode</span> <span class=nf>resive</span><span class=o>(</span><span class=n>ListNode</span> <span class=n>head</span><span class=o>)</span><span class=o>{</span>
+    <span class=n>ListNode</span> <span class=n>prev</span> <span class=o>=</span> <span class=kc>null</span><span class=o>;</span>
+    <span class=n>ListNode</span> <span class=n>curr</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+    <span class=k>while</span> <span class=o>(</span><span class=n>curr</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+       <span class=n>ListNode</span> <span class=n>tempNode</span> <span class=o>=</span> <span class=n>curr</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+       <span class=n>curr</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>prev</span><span class=o>;</span>
+       <span class=n>prev</span> <span class=o>=</span> <span class=n>curr</span><span class=o>;</span>
+       <span class=n>curr</span> <span class=o>=</span> <span class=n>tempNode</span><span class=o>;</span>
+    <span class=o>}</span>
+    <span class=k>return</span> <span class=n>prev</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>本文于 2020-01-15 更新</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href="//twitter.com/share?url=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2fleetecode-list%2f&text=%5bLeetCode%5d%09%e9%93%be%e8%a1%a8&via=EdisonZjs" target=_blank title="Share on Twitter"><i class="fab fa-twitter fa-fw"></i></a><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2fleetecode-list%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook-square fa-fw"></i></a></span></div></div></div><div class=post-info-more><section><span class=tag><a href=https://Edisonzjs.github.io/tags/leetcode/><i class="fas fa-tag fa-fw"></i>LeetCode</a></span></section><section><span><a href=javascript:window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://Edisonzjs.github.io/>主页</a></span></section></div><div class=post-nav><a href=https://Edisonzjs.github.io/2020/01/aqs/ class=prev rel=prev title=AQS><i class="fas fa-angle-left fa-fw"></i>AQS</a>
+<a href=https://Edisonzjs.github.io/2020/01/pass-by-val/ class=next rel=next title=值传递？引用传递？>值传递？引用传递？<i class="fas fa-angle-right fa-fw"></i></a></div></div><div class=post-comment></div></article></div></main><footer class=footer><div class=copyright><div class=copyright-line>由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreffer">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a></div><div class=copyright-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2018 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://Edisonzjs.github.io/>Edison</a></span><span class=license>&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer><script src=/js/lib/jquery/jquery.slim.min.min.js></script><script src=/js/lib/lazysizes/lazysizes.min.min.js></script><script src=/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js></script><script>window.scroll=new SmoothScroll('[data-scroll]',{speed:300,speedAsDuration:true});</script><script src=/js/blog.min.js></script></div><a href=# class=dynamic-to-top id=dynamic-to-top data-scroll><span>&nbsp;</span></a></body></html>

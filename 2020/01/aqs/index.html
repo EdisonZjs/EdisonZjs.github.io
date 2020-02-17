@@ -1,0 +1,326 @@
+<!doctype html><html lang=zh><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>AQS | Edison's blog | Java Developer</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=Description content="Edison的个人blog"><link rel=next href=https://Edisonzjs.github.io/2020/01/leetecode-list/><link rel=canonical href=https://Edisonzjs.github.io/2020/01/aqs/><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><meta name=twitter:card content="summary"><meta name=twitter:title content="AQS"><meta name=twitter:description content="1.AQS简介与原理阐述 AQS(AbstractQueuedSynchronizer)是一个用来构建锁和同步器的框架，它内部使用了一个int"><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"AQS","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/Edisonzjs.github.io\/2020\/01\/aqs\/"},"image":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/cover.png","width":800,"height":600},"genre":"posts","keywords":"并发","wordcount":3382,"url":"https:\/\/Edisonzjs.github.io\/2020\/01\/aqs\/","datePublished":"2020-01-07T15:17:40\x2b08:00","dateModified":"2020-01-07T15:17:40\x2b08:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"XXXX","logo":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/logo.png","width":127,"height":40}},"description":""}</script><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/css/lib/fontawesome-free/all.min.min.css><link rel=stylesheet href=/css/lib/animate/animate.min.min.css></head><body><script>window.isDark=(window.localStorage&&window.localStorage.getItem('theme'))==='dark';window.isDark&&document.body.classList.add('dark-theme');</script><div class=wrapper><nav class=navbar><div class=navbar-container><div class="navbar-header animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=navbar-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><nav class=navbar-mobile><div class=navbar-container><div class=navbar-header><div class="navbar-header-title animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=menu-toggle id=menu-toggle><span></span><span></span><span></span></div></div><div class=navbar-menu id=mobile-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><main class=main><div class=container><article class=post-warp><h1 class="post-title animated flipInX">AQS</h1><div class=post-meta><div class=post-meta-main><a class=author href=https://Edisonzjs.github.io/ rel=author><i class="fas fa-user-circle fa-fw"></i>Edison&nbsp;</a>
+<span class=post-category>收录于
+<i class="far fa-folder fa-fw"></i><a href=https://Edisonzjs.github.io/categories/%E5%B9%B6%E5%8F%91/>并发</a></span></div><div class=post-meta-other><i class="far fa-calendar-alt fa-fw"></i><time datetime=2020-01-07>2020-01-07</time>&nbsp;
+<i class="fas fa-pencil-alt fa-fw"></i>约 3382 字&nbsp;
+<i class="far fa-clock fa-fw"></i>预计阅读 7 分钟&nbsp;</div></div><div class=post-toc id=post-toc><h2 class=post-toc-title>目录</h2><div class=post-toc-content><nav id=TableOfContents><ul><li><a href=#1aqs简介与原理阐述>1.AQS简介与原理阐述</a><ul><li><a href=#11-clh队列>1.1 CLH队列</a></li><li><a href=#12-aqs内部类node>1.2 AQS内部类Node</a></li></ul></li><li><a href=#2锁的获取释放>2.锁的获取/释放</a><ul><li><a href=#21-独占式的获取>2.1 独占式的获取</a></li><li><a href=#22-独占式的释放>2.2 独占式的释放</a></li></ul></li></ul></nav></div></div><div class=post-toc-mobile id=post-toc-mobile><details><summary><div class=post-toc-title><span>目录</span><span><i class="details icon fas fa-angle-down"></i></span></div></summary><div class=post-toc-content><nav id=TableOfContentsMobile><ul><li><a href=#1aqs简介与原理阐述>1.AQS简介与原理阐述</a><ul><li><a href=#11-clh队列>1.1 CLH队列</a></li><li><a href=#12-aqs内部类node>1.2 AQS内部类Node</a></li></ul></li><li><a href=#2锁的获取释放>2.锁的获取/释放</a><ul><li><a href=#21-独占式的获取>2.1 独占式的获取</a></li><li><a href=#22-独占式的释放>2.2 独占式的释放</a></li></ul></li></ul></nav></div></details></div><div class=post-content><a class=post-dummy-target id=1aqs简介与原理阐述></a><h2>1.AQS简介与原理阐述</h2><p>AQS(AbstractQueuedSynchronizer)是一个用来构建锁和同步器的框架，它内部使用了一个int类型的state变量来表示同步状态。该变量用volatile修饰，确保并发下同步状态的正确性。AQS内部维护着一个CLH队列，对于那些获取共享资源失败的线程，将会被加入到CLH队列中。并提供了一套完整的机制，来唤醒队列中被阻塞的线程。Lock包中的锁也都是基于AQS实现的(如ReentrantLock、Semaphore)。</p><a class=post-dummy-target id=11-clh队列></a><h3>1.1 CLH队列</h3><blockquote><p>CLH(Craig,Landin,and Hagersten)队列就是一个虚拟的双向FIFO队列。(虚拟的，即不存在队列实例，仅存在节点之间的关系)。AQS将每个请求共享资源的线程封装成一个Node节点，加入到CLH队列中。</p></blockquote><p>下图是一个CLH队列的描述，AQS持有队列的head和tail节点。</p><p><img src=https://i.loli.net/2020/01/09/r4HFdEMDiOVYfly.png alt=image-20200108142138687.png></p><p>AQS内部用一个int类型的变量表示同步状态，并提供了一系列的原子操作对其进行修改。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=kd>volatile</span> <span class=kt>int</span> <span class=n>state</span><span class=o>;</span> <span class=c1>//volatile修饰，保证了线程的可见性
+</span><span class=c1></span>
+<span class=c1>//获取当前同步状态
+</span><span class=c1></span><span class=kd>protected</span> <span class=kd>final</span> <span class=kt>int</span> <span class=nf>getState</span><span class=o>(</span><span class=o>)</span> <span class=o>{</span>  
+    <span class=k>return</span> <span class=n>state</span><span class=o>;</span>
+<span class=o>}</span>
+
+<span class=c1>//设置当前同步状态
+</span><span class=c1></span><span class=kd>protected</span> <span class=kd>final</span> <span class=kt>void</span> <span class=nf>setState</span><span class=o>(</span><span class=kt>int</span> <span class=n>newState</span><span class=o>)</span> <span class=o>{</span>
+    <span class=n>state</span> <span class=o>=</span> <span class=n>newState</span><span class=o>;</span>
+<span class=o>}</span>
+
+<span class=c1>//CAS修改，如果当前值等于期望值(expect)，则进行修改(update)
+</span><span class=c1></span><span class=kd>protected</span> <span class=kd>final</span> <span class=kt>boolean</span> <span class=nf>compareAndSetState</span><span class=o>(</span><span class=kt>int</span> <span class=n>expect</span><span class=o>,</span> <span class=kt>int</span> <span class=n>update</span><span class=o>)</span> <span class=o>{</span>
+    <span class=k>return</span> <span class=n>unsafe</span><span class=o>.</span><span class=na>compareAndSwapInt</span><span class=o>(</span><span class=k>this</span><span class=o>,</span> <span class=n>stateOffset</span><span class=o>,</span> <span class=n>expect</span><span class=o>,</span> <span class=n>update</span><span class=o>)</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><a class=post-dummy-target id=12-aqs内部类node></a><h3>1.2 AQS内部类Node</h3><p>现在我们知道了请求共享资源的线程是被封装成一个Node节点加入CLH队列的，那么我们来看一下这个内部类Node的结构</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>static</span> <span class=kd>final</span> <span class=kd>class</span> <span class=nc>Node</span> <span class=o>{</span>
+	
+    <span class=kd>static</span> <span class=kd>final</span> <span class=n>Node</span> <span class=n>SHARED</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Node</span><span class=o>(</span><span class=o>)</span><span class=o>;</span> <span class=c1>//共享模式节点
+</span><span class=c1></span>    
+    <span class=kd>static</span> <span class=kd>final</span> <span class=n>Node</span> <span class=n>EXCLUSIVE</span> <span class=o>=</span> <span class=kc>null</span><span class=o>;</span> <span class=c1>//独占模式节点
+</span><span class=c1></span>	
+  
+    <span class=kd>static</span> <span class=kd>final</span> <span class=kt>int</span> <span class=n>CANCELLED</span> <span class=o>=</span>  <span class=n>1</span><span class=o>;</span> 
+
+    <span class=kd>static</span> <span class=kd>final</span> <span class=kt>int</span> <span class=n>SIGNAL</span>    <span class=o>=</span> <span class=o>-</span><span class=n>1</span><span class=o>;</span>
+
+    <span class=kd>static</span> <span class=kd>final</span> <span class=kt>int</span> <span class=n>CONDITION</span> <span class=o>=</span> <span class=o>-</span><span class=n>2</span><span class=o>;</span>
+
+    <span class=kd>static</span> <span class=kd>final</span> <span class=kt>int</span> <span class=n>PROPAGATE</span> <span class=o>=</span> <span class=o>-</span><span class=n>3</span><span class=o>;</span>
+    
+    <span class=c1>//节点状态，有CANCELLED、SIGNAL、CONDITION、PROPAGATE和默认值0几种取值
+</span><span class=c1></span>    <span class=kd>volatile</span> <span class=kt>int</span> <span class=n>waitStatus</span><span class=o>;</span>
+
+    <span class=kd>volatile</span> <span class=n>Node</span> <span class=n>prev</span><span class=o>;</span> <span class=c1>//前驱节点
+</span><span class=c1></span>
+    <span class=kd>volatile</span> <span class=n>Node</span> <span class=n>next</span><span class=o>;</span> <span class=c1>//后继节点
+</span><span class=c1></span>
+    <span class=kd>volatile</span> <span class=n>Thread</span> <span class=n>thread</span><span class=o>;</span> <span class=c1>//请求资源的线程
+</span><span class=c1></span>
+    <span class=n>Node</span> <span class=n>nextWaiter</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>对于waitStatus几种取值的解释：</p><ul><li><p>CANCELLED：该节点的线程可能由于超时或被中断而处于"取消"状态，且这个状态是有永久的，因此应该移出队列。</p></li><li><p>SIGNAL：如果节点处于SIGNAL状态，则后继节点应该被阻塞。所以当前节点释放或被取消时，应该唤醒后继节点。</p></li><li><p>CONDITION：该节点从LCH同步队列转移到condition的等待队列中，直到被唤醒，重新加入同步队列。</p></li><li><p>PROPAGATE：和共享模式节点相关，处于这个状态的节点一旦被释放，将会把这个状态传播下去。</p></li><li><p>0：新加入的节点默认值</p></li></ul><a class=post-dummy-target id=2锁的获取释放></a><h2>2.锁的获取/释放</h2><a class=post-dummy-target id=21-独占式的获取></a><h3>2.1 独占式的获取</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>final</span> <span class=kt>void</span> <span class=nf>acquire</span><span class=o>(</span><span class=kt>int</span> <span class=n>arg</span><span class=o>)</span> <span class=o>{</span>
+    <span class=k>if</span> <span class=o>(</span><span class=o>!</span><span class=n>tryAcquire</span><span class=o>(</span><span class=n>arg</span><span class=o>)</span> <span class=o>&amp;</span><span class=o>&amp;</span>
+        <span class=n>acquireQueued</span><span class=o>(</span><span class=n>addWaiter</span><span class=o>(</span><span class=n>Node</span><span class=o>.</span><span class=na>EXCLUSIVE</span><span class=o>)</span><span class=o>,</span> <span class=n>arg</span><span class=o>)</span><span class=o>)</span>
+        <span class=n>selfInterrupt</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>tryAcquire(arg)方法在AQS中并没有实现，需要开发者自己去实现，成功返回true，失败返回false。然后调用addWaiter()方法将当前线程构造成一个独享模式的节点。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=n>Node</span> <span class=nf>addWaiter</span><span class=o>(</span><span class=n>Node</span> <span class=n>mode</span><span class=o>)</span> <span class=o>{</span>
+    <span class=c1>// 将当前线程封装成一个独占式的节点
+</span><span class=c1></span>    <span class=n>Node</span> <span class=n>node</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Node</span><span class=o>(</span><span class=n>Thread</span><span class=o>.</span><span class=na>currentThread</span><span class=o>(</span><span class=o>)</span><span class=o>,</span> <span class=n>mode</span><span class=o>)</span><span class=o>;</span>
+  	<span class=c1>// 获取同步队列的尾节点
+</span><span class=c1></span>    <span class=n>Node</span> <span class=n>pred</span> <span class=o>=</span> <span class=n>tail</span><span class=o>;</span>
+    <span class=c1>// 如果尾节点不为null，采用尾插法把当前节点加入到末尾
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>pred</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>node</span><span class=o>.</span><span class=na>prev</span> <span class=o>=</span> <span class=n>pred</span><span class=o>;</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>compareAndSetTail</span><span class=o>(</span><span class=n>pred</span><span class=o>,</span> <span class=n>node</span><span class=o>)</span><span class=o>)</span> <span class=o>{</span>
+            <span class=n>pred</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>node</span><span class=o>;</span>
+            <span class=k>return</span> <span class=n>node</span><span class=o>;</span> <span class=c1>//返回旧的尾节点
+</span><span class=c1></span>        <span class=o>}</span>
+    <span class=o>}</span>
+    <span class=n>enq</span><span class=o>(</span><span class=n>node</span><span class=o>)</span><span class=o>;</span> <span class=c1>// 尾节点为null,即队列为空，初始化队列。
+</span><span class=c1></span>    <span class=k>return</span> <span class=n>node</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>可以看到，如果队列的尾节点不为null，则CAS把当前线程的节点设置为尾节点。若为null则调用enq(node)方法初始化队列。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=n>Node</span> <span class=nf>enq</span><span class=o>(</span><span class=kd>final</span> <span class=n>Node</span> <span class=n>node</span><span class=o>)</span> <span class=o>{</span>
+    <span class=k>for</span> <span class=o>(</span><span class=o>;</span><span class=o>;</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>Node</span> <span class=n>t</span> <span class=o>=</span> <span class=n>tail</span><span class=o>;</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>t</span> <span class=o>=</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span> <span class=o>{</span> 
+            <span class=c1>// 队列为空，创建一个空节点，CAS初始化队列
+</span><span class=c1></span>            <span class=k>if</span> <span class=o>(</span><span class=n>compareAndSetHead</span><span class=o>(</span><span class=k>new</span> <span class=n>Node</span><span class=o>(</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>
+                <span class=n>tail</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=o>}</span> <span class=k>else</span> <span class=o>{</span>
+            <span class=c1>// CAS把当前节点插入队尾
+</span><span class=c1></span>            <span class=n>node</span><span class=o>.</span><span class=na>prev</span> <span class=o>=</span> <span class=n>t</span><span class=o>;</span>
+            <span class=k>if</span> <span class=o>(</span><span class=n>compareAndSetTail</span><span class=o>(</span><span class=n>t</span><span class=o>,</span> <span class=n>node</span><span class=o>)</span><span class=o>)</span> <span class=o>{</span>
+                <span class=n>t</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>node</span><span class=o>;</span>
+                <span class=k>return</span> <span class=n>t</span><span class=o>;</span>  <span class=c1>// 返回旧的尾节点
+</span><span class=c1></span>            <span class=o>}</span>
+        <span class=o>}</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>接着，当addWaiter()把当前线程成功加入同步队列中后，并不会立即挂起线程，而是调用acquireQueued()方法，自旋的重新尝试获取锁，因为在加入同步队列的过程中，可能前面的线程已经释放锁了。当满足条件后退出自旋。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>final</span> <span class=kt>boolean</span> <span class=nf>acquireQueued</span><span class=o>(</span><span class=kd>final</span> <span class=n>Node</span> <span class=n>node</span><span class=o>,</span> <span class=kt>int</span> <span class=n>arg</span><span class=o>)</span> <span class=o>{</span>
+    <span class=kt>boolean</span> <span class=n>failed</span> <span class=o>=</span> <span class=kc>true</span><span class=o>;</span>
+    <span class=k>try</span> <span class=o>{</span>
+        <span class=c1>// 中断标志位，表示该线程在获取锁的过程中是否被中断过
+</span><span class=c1></span>        <span class=kt>boolean</span> <span class=n>interrupted</span> <span class=o>=</span> <span class=kc>false</span><span class=o>;</span> 
+        <span class=k>for</span> <span class=o>(</span><span class=o>;</span><span class=o>;</span><span class=o>)</span> <span class=o>{</span>
+            <span class=kd>final</span> <span class=n>Node</span> <span class=n>p</span> <span class=o>=</span> <span class=n>node</span><span class=o>.</span><span class=na>predecessor</span><span class=o>(</span><span class=o>)</span><span class=o>;</span> <span class=c1>// 获取当前节点的前驱节点
+</span><span class=c1></span>            <span class=c1>// 如果前驱节点是头节点，则尝试快速获取锁且获取成功
+</span><span class=c1></span>            <span class=k>if</span> <span class=o>(</span><span class=n>p</span> <span class=o>=</span><span class=o>=</span> <span class=n>head</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>tryAcquire</span><span class=o>(</span><span class=n>arg</span><span class=o>)</span><span class=o>)</span> <span class=o>{</span>
+                <span class=n>setHead</span><span class=o>(</span><span class=n>node</span><span class=o>)</span><span class=o>;</span> <span class=c1>// 把当前节点设置为头节点
+</span><span class=c1></span>                <span class=n>p</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=kc>null</span><span class=o>;</span> <span class=c1>// help GC
+</span><span class=c1></span>                <span class=n>failed</span> <span class=o>=</span> <span class=kc>false</span><span class=o>;</span>
+                <span class=k>return</span> <span class=n>interrupted</span><span class=o>;</span>
+            <span class=o>}</span>
+            <span class=c1>// shouldParkAfterFailedAcquire判断线程释放应该被挂起
+</span><span class=c1></span>            <span class=c1>// parkAndCheckInterrupt挂起线程并返回线程被挂起时是否被中断过
+</span><span class=c1></span>            <span class=k>if</span> <span class=o>(</span><span class=n>shouldParkAfterFailedAcquire</span><span class=o>(</span><span class=n>p</span><span class=o>,</span> <span class=n>node</span><span class=o>)</span> <span class=o>&amp;</span><span class=o>&amp;</span>
+                <span class=n>parkAndCheckInterrupt</span><span class=o>(</span><span class=o>)</span><span class=o>)</span>
+                <span class=n>interrupted</span> <span class=o>=</span> <span class=kc>true</span><span class=o>;</span>
+        <span class=o>}</span>
+    <span class=o>}</span> <span class=k>finally</span> <span class=o>{</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>failed</span><span class=o>)</span>
+            <span class=n>cancelAcquire</span><span class=o>(</span><span class=n>node</span><span class=o>)</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>shouldParkAfterFailedAcquire根据其前驱节点的状态来判断当前线程是否应该被挂起。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=kd>static</span> <span class=kt>boolean</span> <span class=nf>shouldParkAfterFailedAcquire</span><span class=o>(</span><span class=n>Node</span> <span class=n>pred</span><span class=o>,</span> <span class=n>Node</span> <span class=n>node</span><span class=o>)</span> <span class=o>{</span>
+    <span class=kt>int</span> <span class=n>ws</span> <span class=o>=</span> <span class=n>pred</span><span class=o>.</span><span class=na>waitStatus</span><span class=o>;</span>
+    <span class=c1>// 前驱节点的状态为SIGNAL，则当前线程应该被挂起
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>ws</span> <span class=o>=</span><span class=o>=</span> <span class=n>Node</span><span class=o>.</span><span class=na>SIGNAL</span><span class=o>)</span>
+        <span class=k>return</span> <span class=kc>true</span><span class=o>;</span>
+    <span class=c1>// 如果前驱节点状态为CANCELLED，则前驱节点开始一直往前遍历，找到第一个节点状态非CANCELLED的，
+</span><span class=c1></span>    <span class=c1>// 把找到节点作为当前线程的前驱节点。被遍历过的CANCELLED节点就会移出队列
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>ws</span> <span class=o>&gt;</span> <span class=n>0</span><span class=o>)</span> <span class=o>{</span>
+        <span class=k>do</span> <span class=o>{</span>
+            <span class=n>node</span><span class=o>.</span><span class=na>prev</span> <span class=o>=</span> <span class=n>pred</span> <span class=o>=</span> <span class=n>pred</span><span class=o>.</span><span class=na>prev</span><span class=o>;</span>
+        <span class=o>}</span> <span class=k>while</span> <span class=o>(</span><span class=n>pred</span><span class=o>.</span><span class=na>waitStatus</span> <span class=o>&gt;</span> <span class=n>0</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>pred</span><span class=o>.</span><span class=na>next</span> <span class=o>=</span> <span class=n>node</span><span class=o>;</span>
+    <span class=o>}</span> <span class=k>else</span> <span class=o>{</span>
+        <span class=c1>// 如果前驱节点状态既不是SIGNAL也不是CANCELLED，把前驱节点设置为SIGNAL
+</span><span class=c1></span>        <span class=n>compareAndSetWaitStatus</span><span class=o>(</span><span class=n>pred</span><span class=o>,</span> <span class=n>ws</span><span class=o>,</span> <span class=n>Node</span><span class=o>.</span><span class=na>SIGNAL</span><span class=o>)</span><span class=o>;</span>
+    <span class=o>}</span>
+    <span class=k>return</span> <span class=kc>false</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>parkAndCheckInterrupt调用LockSupport.park()阻塞线程，当线程被唤醒时检查线程是否被中断过。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=kd>final</span> <span class=kt>boolean</span> <span class=nf>parkAndCheckInterrupt</span><span class=o>(</span><span class=o>)</span> <span class=o>{</span>
+    <span class=n>LockSupport</span><span class=o>.</span><span class=na>park</span><span class=o>(</span><span class=k>this</span><span class=o>)</span><span class=o>;</span>
+    <span class=k>return</span> <span class=n>Thread</span><span class=o>.</span><span class=na>interrupted</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>现在我们对独占式的锁获取做个总结：</p><ol><li><p>通过模板方法acquire()，调用子类实现的tryAcquire()方法获取同步状态失败后，执行步骤2</p></li><li><p>调用addWaiter()方法，将当前线程构造成一个Node节点，加入到同步队列的尾部。如果队列为空，则先初始化队列。继续执行步骤3</p></li><li><p>调用acquireQueued()方法，判断前驱节点是否是头节点。</p><p>3.1 如果是头节点则调用tryAcquire()尝试获取同步状态。若获取成功，则设置当前节点为新的头 节点，返回并检查线程是否需要被中断。</p><p>3.2 如果不是头节点或尝试获取失败，执行步骤4</p></li><li><p>调用shouldParkAfterFailedAcquire()方法，判断前驱节点的状态。</p><p>4.1 如果状态为SIGNAL，返回ture表示当前线程需要被阻塞。执行步骤5</p><p>4.2 如果状态>0，即CANCELLED状态，从前驱节点开始一直往前遍历，直到找到第一个状态非 CANCELLED的节点。然后把这个非CANCELLED节点设置为当前线程的前驱节点，被遍历过 CANCELLED节点会被移出同步队列。然后返回false从步骤开始重新执行。</p><p>4.3 如果状态&lt;0，则CAS把前驱节点状态设置为SIGNAL。然后返回false从步骤开始重新执行。</p></li><li><p>调用parkAndCheckInterrupt()方法阻塞当前线程，当被唤醒时，返回线程是否被中断过。然后从步骤3开始重新执行</p></li></ol><p>文字说起来可能不太好理解，可以结合下面的流程图来理解。
+<img src=https://i.loli.net/2020/01/09/AS7WRbyzFLx6Vj4.png alt=image-20200109104052079.png></p><a class=post-dummy-target id=22-独占式的释放></a><h3>2.2 独占式的释放</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>final</span> <span class=kt>boolean</span> <span class=nf>release</span><span class=o>(</span><span class=kt>int</span> <span class=n>arg</span><span class=o>)</span> <span class=o>{</span>
+    <span class=k>if</span> <span class=o>(</span><span class=n>tryRelease</span><span class=o>(</span><span class=n>arg</span><span class=o>)</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>Node</span> <span class=n>h</span> <span class=o>=</span> <span class=n>head</span><span class=o>;</span>
+        <span class=k>if</span> <span class=o>(</span><span class=n>h</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>h</span><span class=o>.</span><span class=na>waitStatus</span> <span class=o>!</span><span class=o>=</span> <span class=n>0</span><span class=o>)</span>
+            <span class=n>unparkSuccessor</span><span class=o>(</span><span class=n>h</span><span class=o>)</span><span class=o>;</span>
+        <span class=k>return</span> <span class=kc>true</span><span class=o>;</span>
+    <span class=o>}</span>
+    <span class=k>return</span> <span class=kc>false</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>和锁得获取一样，tryRelease同样需要子类去实现。成功返回true，失败返回false。既然是释放锁，那当然是获取锁的线程才能释放，所以这里就是释放head。</p><p>unparkSuccessor释放操作，就是把头节点状态改为0，然后唤醒后继节点。注意头节点的出队是在后继节点获取锁时发生的。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>private</span> <span class=kt>void</span> <span class=nf>unparkSuccessor</span><span class=o>(</span><span class=n>Node</span> <span class=n>node</span><span class=o>)</span> <span class=o>{</span>
+ 
+    <span class=kt>int</span> <span class=n>ws</span> <span class=o>=</span> <span class=n>node</span><span class=o>.</span><span class=na>waitStatus</span><span class=o>;</span>
+    <span class=c1>// 如果头节点的状态&lt;0，则CAS把头节状态修改为0，以便后继节点被唤醒时可以竞争锁。
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>ws</span> <span class=o>&lt;</span> <span class=n>0</span><span class=o>)</span>
+        <span class=n>compareAndSetWaitStatus</span><span class=o>(</span><span class=n>node</span><span class=o>,</span> <span class=n>ws</span><span class=o>,</span> <span class=n>0</span><span class=o>)</span><span class=o>;</span>
+
+    <span class=n>Node</span> <span class=n>s</span> <span class=o>=</span> <span class=n>node</span><span class=o>.</span><span class=na>next</span><span class=o>;</span>
+   	<span class=c1>// 如果头节点的后继节点是null或是CANCELLED状态
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>s</span> <span class=o>=</span><span class=o>=</span> <span class=kc>null</span> <span class=o>|</span><span class=o>|</span> <span class=n>s</span><span class=o>.</span><span class=na>waitStatus</span> <span class=o>&gt;</span> <span class=n>0</span><span class=o>)</span> <span class=o>{</span>
+        <span class=n>s</span> <span class=o>=</span> <span class=kc>null</span><span class=o>;</span>
+        <span class=c1>// 从后往前遍历，找到队列最前面那个状态非CANCELLED的节点
+</span><span class=c1></span>        <span class=k>for</span> <span class=o>(</span><span class=n>Node</span> <span class=n>t</span> <span class=o>=</span> <span class=n>tail</span><span class=o>;</span> <span class=n>t</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span> <span class=o>&amp;</span><span class=o>&amp;</span> <span class=n>t</span> <span class=o>!</span><span class=o>=</span> <span class=n>node</span><span class=o>;</span> <span class=n>t</span> <span class=o>=</span> <span class=n>t</span><span class=o>.</span><span class=na>prev</span><span class=o>)</span>
+            <span class=k>if</span> <span class=o>(</span><span class=n>t</span><span class=o>.</span><span class=na>waitStatus</span> <span class=o>&lt;</span><span class=o>=</span> <span class=n>0</span><span class=o>)</span>
+                <span class=n>s</span> <span class=o>=</span> <span class=n>t</span><span class=o>;</span>
+    <span class=o>}</span>
+    <span class=c1>// 如果存在状态非CANCELLED的后继节点，则唤醒该节点线程
+</span><span class=c1></span>    <span class=k>if</span> <span class=o>(</span><span class=n>s</span> <span class=o>!</span><span class=o>=</span> <span class=kc>null</span><span class=o>)</span>
+        <span class=n>LockSupport</span><span class=o>.</span><span class=na>unpark</span><span class=o>(</span><span class=n>s</span><span class=o>.</span><span class=na>thread</span><span class=o>)</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>下面我们来总结一下独占式锁释放的流程：</p><ol><li>通过模板方法release()调用子类的实现tryRelease()，释放同步状态和头节点中的线程。如果成功则执行步骤2</li><li>判断头节点的状态释是否&lt;0，如果是则把状态修改为0。然后从后往前遍历找到队列最前面那个状态非CANCELLED的节点，如果存在则唤醒该节点中的线程。该线程被唤醒后就会重新竞争锁。</li></ol></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>本文于 2020-01-07 更新</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href="//twitter.com/share?url=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2faqs%2f&text=AQS&via=EdisonZjs" target=_blank title="Share on Twitter"><i class="fab fa-twitter fa-fw"></i></a><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2faqs%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook-square fa-fw"></i></a></span></div></div></div><div class=post-info-more><section><span class=tag><a href=https://Edisonzjs.github.io/tags/%E5%B9%B6%E5%8F%91/><i class="fas fa-tag fa-fw"></i>并发</a></span></section><section><span><a href=javascript:window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://Edisonzjs.github.io/>主页</a></span></section></div><div class=post-nav><a href=https://Edisonzjs.github.io/2020/01/leetecode-list/ class=next rel=next title="[LeetCode]	链表">[LeetCode] 链表<i class="fas fa-angle-right fa-fw"></i></a></div></div><div class=post-comment></div></article></div></main><footer class=footer><div class=copyright><div class=copyright-line>由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreffer">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a></div><div class=copyright-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2018 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://Edisonzjs.github.io/>Edison</a></span><span class=license>&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer><script src=/js/lib/jquery/jquery.slim.min.min.js></script><script src=/js/lib/lazysizes/lazysizes.min.min.js></script><script src=/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js></script><script>window.scroll=new SmoothScroll('[data-scroll]',{speed:300,speedAsDuration:true});</script><script src=/js/blog.min.js></script></div><a href=# class=dynamic-to-top id=dynamic-to-top data-scroll><span>&nbsp;</span></a></body></html>

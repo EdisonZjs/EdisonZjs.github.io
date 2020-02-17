@@ -1,0 +1,248 @@
+<!doctype html><html lang=zh><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>深拷贝VS浅拷贝 | Edison's blog | Java Developer</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=Description content="Edison的个人blog"><link rel=prev href=https://Edisonzjs.github.io/2020/01/pass-by-val/><link rel=next href=https://Edisonzjs.github.io/2020/01/io-model/><link rel=canonical href=https://Edisonzjs.github.io/2020/01/deepcopy-shallowcopy/><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><meta name=twitter:card content="summary"><meta name=twitter:title content="深拷贝VS浅拷贝"><meta name=twitter:description content="1.什么是浅拷贝 浅拷贝是按位拷贝，它会创建一个新的对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值"><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"深拷贝VS浅拷贝","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/Edisonzjs.github.io\/2020\/01\/deepcopy-shallowcopy\/"},"image":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/cover.png","width":800,"height":600},"genre":"posts","keywords":"基础","wordcount":3068,"url":"https:\/\/Edisonzjs.github.io\/2020\/01\/deepcopy-shallowcopy\/","datePublished":"2020-01-17T12:51:16\x2b08:00","dateModified":"2020-01-17T12:51:16\x2b08:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"XXXX","logo":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/logo.png","width":127,"height":40}},"description":""}</script><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/css/lib/fontawesome-free/all.min.min.css><link rel=stylesheet href=/css/lib/animate/animate.min.min.css></head><body><script>window.isDark=(window.localStorage&&window.localStorage.getItem('theme'))==='dark';window.isDark&&document.body.classList.add('dark-theme');</script><div class=wrapper><nav class=navbar><div class=navbar-container><div class="navbar-header animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=navbar-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><nav class=navbar-mobile><div class=navbar-container><div class=navbar-header><div class="navbar-header-title animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=menu-toggle id=menu-toggle><span></span><span></span><span></span></div></div><div class=navbar-menu id=mobile-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><main class=main><div class=container><article class=post-warp><h1 class="post-title animated flipInX">深拷贝VS浅拷贝</h1><div class=post-meta><div class=post-meta-main><a class=author href=https://Edisonzjs.github.io/ rel=author><i class="fas fa-user-circle fa-fw"></i>Edison&nbsp;</a>
+<span class=post-category>收录于
+<i class="far fa-folder fa-fw"></i><a href=https://Edisonzjs.github.io/categories/%E5%9F%BA%E7%A1%80/>基础</a></span></div><div class=post-meta-other><i class="far fa-calendar-alt fa-fw"></i><time datetime=2020-01-17>2020-01-17</time>&nbsp;
+<i class="fas fa-pencil-alt fa-fw"></i>约 3068 字&nbsp;
+<i class="far fa-clock fa-fw"></i>预计阅读 7 分钟&nbsp;</div></div><div class=post-toc id=post-toc><h2 class=post-toc-title>目录</h2><div class=post-toc-content><nav id=TableOfContents><ul><li><a href=#1什么是浅拷贝>1.什么是浅拷贝</a></li><li><a href=#2什么是深拷贝>2.什么是深拷贝</a></li></ul></nav></div></div><div class=post-toc-mobile id=post-toc-mobile><details><summary><div class=post-toc-title><span>目录</span><span><i class="details icon fas fa-angle-down"></i></span></div></summary><div class=post-toc-content><nav id=TableOfContentsMobile><ul><li><a href=#1什么是浅拷贝>1.什么是浅拷贝</a></li><li><a href=#2什么是深拷贝>2.什么是深拷贝</a></li></ul></nav></div></details></div><div class=post-content><a class=post-dummy-target id=1什么是浅拷贝></a><h2>1.什么是浅拷贝</h2><blockquote><p>浅拷贝是按位拷贝，它会创建一个新的对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值。如果属性是内存地址，拷贝的就是内存地址，因此如果其中一个对象改变了这个地址，就会影响到另一个对象。</p></blockquote><p>example ：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>Son</span> <span class=o>{</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=n>name</span><span class=o>;</span>
+    <span class=c1>//...
+</span><span class=c1></span><span class=o>}</span>
+
+<span class=kd>public</span> <span class=kd>class</span> <span class=nc>Father</span> <span class=n>implemnets</span> <span class=n>Cloneable</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=n>String</span> <span class=n>name</span><span class=o>;</span>
+    <span class=kd>private</span> <span class=n>Son</span> <span class=n>son</span><span class=o>;</span>
+    <span class=c1>//...
+</span><span class=c1></span>    
+    <span class=nd>@Override</span>
+    <span class=kd>protected</span> <span class=n>Object</span> <span class=nf>clone</span><span class=o>(</span><span class=o>)</span><span class=o>{</span>
+        <span class=k>try</span> <span class=o>{</span>
+            <span class=k>return</span> <span class=kd>super</span><span class=o>.</span><span class=na>clone</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+        <span class=o>}</span><span class=k>catch</span> <span class=o>(</span><span class=n>CloneNotSupportedException</span> <span class=n>e</span><span class=o>)</span><span class=o>{</span>
+            <span class=n>e</span><span class=o>.</span><span class=na>printStackTrace</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+        <span class=o>}</span>
+        <span class=k>return</span> <span class=kc>null</span><span class=o>;</span>
+    <span class=o>}</span>
+	
+    <span class=kd>public</span> <span class=kd>static</span> <span class=kt>void</span> <span class=nf>main</span> <span class=o>(</span><span class=n>String</span><span class=o>[</span><span class=o>]</span> <span class=n>args</span><span class=o>)</span> <span class=o>{</span>
+    	<span class=n>Son</span> <span class=n>son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=s>&#34;小明&#34;</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>Father</span> <span class=n>father</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Father</span><span class=o>(</span><span class=s>&#34;大明&#34;</span><span class=o>,</span><span class=n>son</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>Father</span> <span class=n>father_copy</span> <span class=o>=</span> <span class=o>(</span><span class=n>Father</span><span class=o>)</span> <span class=n>father</span><span class=o>.</span><span class=na>clone</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+        
+    	<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;原始对象和浅拷贝对象是否相等: &#34;</span> <span class=o>+</span> <span class=n>father</span> <span class=o>=</span><span class=o>=</span> <span class=n>father_copy</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;原始对象和浅拷贝对象的son是否相等: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span> <span class=o>=</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span><span class=o>)</span><span class=o>;</span>
+    	
+        <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;老王&#34;</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;name修改的原始对象name属性: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;name修改后的拷贝对象name属性: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        
+        <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;小王&#34;</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,原始对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,拷贝对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>输出 :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>原始对象和浅拷贝对象是否相等: false
+原始对象和浅拷贝对象的son是否相等: true
+
+name修改的原始对象name属性: 大明
+name修改后的拷贝对象name属性: 老王
+
+son的name属性修改后,原始对象的son的name属性: 小王
+son的name属性修改后,拷贝对象的son的name属性: 小王
+</code></pre></td></tr></table></div></div><p>有朋友可能会疑问了，String不也是引用类型吗？为什么浅拷贝的对象name改变了，而原始对象的name却没改变？这是因为String是final修饰的常量。对于任何String类型的修改都是新建了一个String对象。所以name的修改，是new了一个新的String对象，然后被拷贝对象持有。这丝毫不会影响原始对象的name值，因为这压儿根就是两个不同的对象。</p><p>我们可以通过输出name的hashcode值来证明</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>static</span> <span class=kt>void</span> <span class=nf>main</span> <span class=o>(</span><span class=n>String</span><span class=o>[</span><span class=o>]</span> <span class=n>args</span><span class=o>)</span> <span class=o>{</span>
+    <span class=n>Son</span> <span class=n>son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=s>&#34;小明&#34;</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>Father</span> <span class=n>father</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Father</span><span class=o>(</span><span class=s>&#34;大明&#34;</span><span class=o>,</span><span class=n>son</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>Father</span> <span class=n>father_copy</span> <span class=o>=</span> <span class=o>(</span><span class=n>Father</span><span class=o>)</span> <span class=n>father</span><span class=o>.</span><span class=na>clone</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+    
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;修改前原始对象name属性的hashcode: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;修改前拷贝对象name属性的hashcode: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+ 		
+    <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;老王&#34;</span><span class=o>;</span>
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;修改后原始对象name属性的hashcode: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;修改后拷贝对象name属性的hashcode: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+ 
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>输出</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>修改前原始对象name属性的hashcode：756703
+修改前拷贝对象name属性的hashcode：756703
+
+修改后原始对象name属性的hashcode：756703
+修改后拷贝对象name属性的hashcode：1045418
+</code></pre></td></tr></table></div></div><p>到这里还是有人疑问，为什么son的name属性修改了却会影响原始对象son属性的name?还记得浅拷贝的定义吗？对于原始对象的基本类型属性是拷贝值的副本，引用类型属性是拷贝一个引用。请理解清楚，<code>是拷贝原始对象的引用类型属性的引用，是属性的引用！</code>这也就是说拷贝对象和原始对象的引用并不是同一个，请参考下图。</p><p>可以看到father和copy_father完全是两个不同的对象，只是它的引用类型属性都指向同一块内存。</p><p><img src=https://i.loli.net/2020/01/17/t9oVLcjgm3bnJlX.png alt=1.png></p><p>当我们修改copy_father的name属性，因为String是常量，所以新建一个String对象"老王&rdquo;，然后copy_father的name属性的引用重新指向"老王&rdquo;。</p><p><img src=https://i.loli.net/2020/01/17/OUfjx4MaXFtGeKD.png alt=2.png></p><p>当我们修改son的name属性，新建了一个String对象“小王”，然后son的name指针重新指向"小王&rdquo;</p><p><img src=https://i.loli.net/2020/01/17/KDAqjzsCeT9Mlih.png alt=3.png></p><p>到这里，你应该能明白为什么修改copy_father的name属性不会影响原始对象father，而修改son的name属性却会影响原始对象son的name了吧。因为copy_father和father完全是两个对象，而son确是同一个啊！</p><p>下面再来看看另一段代码</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>static</span> <span class=kt>void</span> <span class=nf>main</span> <span class=o>(</span><span class=n>String</span><span class=o>[</span><span class=o>]</span> <span class=n>args</span><span class=o>)</span> <span class=o>{</span>
+    <span class=n>Son</span> <span class=n>son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=s>&#34;小明&#34;</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>Father</span> <span class=n>father</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Father</span><span class=o>(</span><span class=s>&#34;大明&#34;</span><span class=o>,</span><span class=n>son</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>Father</span> <span class=n>father_copy</span> <span class=o>=</span> <span class=o>(</span><span class=n>Father</span><span class=o>)</span> <span class=n>father</span><span class=o>.</span><span class=na>clone</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+       
+    <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;小王&#34;</span><span class=o>;</span>
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,原始对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+    <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,拷贝对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>输出 :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>son的name属性修改后,原始对象的son的name属性: 小明
+son的name属性修改后,拷贝对象的son的name属性: 小王
+</code></pre></td></tr></table></div></div><p>这是为什么？我们只不过是在修改son的name之前，加上了<code> father_copy.son = new Son();</code>，为什么又不会影响原始son的name属性了呢？如果你有这个疑问说明你还没搞明白java中的值传递，具体了解请移步这篇文章<a href=../pass-by-val>值传递？引用传递？</a></p><a class=post-dummy-target id=2什么是深拷贝></a><h2>2.什么是深拷贝</h2><blockquote><p>深拷贝会拷贝所有的属性，并拷贝属性指向的动态分配的内存。当对象和它所引用的对象一起拷贝时即发生深拷贝。深拷贝相比较浅拷贝速度较慢并且性能低下。</p></blockquote><p>example :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-java data-lang=java><span class=kd>public</span> <span class=kd>class</span> <span class=nc>Son</span> <span class=o>{</span>
+    <span class=kd>public</span> <span class=n>String</span> <span class=n>name</span><span class=o>;</span>
+    <span class=c1>//...
+</span><span class=c1></span><span class=o>}</span>
+
+<span class=kd>public</span> <span class=kd>class</span> <span class=nc>Father</span> <span class=n>implemnets</span> <span class=n>Cloneable</span> <span class=o>{</span>
+    <span class=kd>private</span> <span class=n>String</span> <span class=n>name</span><span class=o>;</span>
+    <span class=kd>private</span> <span class=n>Son</span> <span class=n>son</span><span class=o>;</span>
+    <span class=c1>//...
+</span><span class=c1></span>    
+    <span class=nd>@Override</span>
+    <span class=kd>protected</span> <span class=n>Object</span> <span class=nf>clone</span><span class=o>(</span><span class=o>)</span><span class=o>{</span>
+        <span class=n>Son</span> <span class=n>clone_son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=n>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span>
+        <span class=n>Father</span> <span class=n>clone_father</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Father</span><span class=o>(</span><span class=n>name</span><span class=o>,</span><span class=n>clone_son</span><span class=o>)</span>
+        <span class=k>return</span> <span class=n>clone_father</span><span class=o>;</span>    
+    <span class=o>}</span>
+	
+    <span class=kd>public</span> <span class=kd>static</span> <span class=kt>void</span> <span class=nf>main</span> <span class=o>(</span><span class=n>String</span><span class=o>[</span><span class=o>]</span> <span class=n>args</span><span class=o>)</span> <span class=o>{</span>
+    	<span class=n>Son</span> <span class=n>son</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Son</span><span class=o>(</span><span class=s>&#34;小明&#34;</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>Father</span> <span class=n>father</span> <span class=o>=</span> <span class=k>new</span> <span class=n>Father</span><span class=o>(</span><span class=s>&#34;大明&#34;</span><span class=o>,</span><span class=n>son</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>Father</span> <span class=n>father_copy</span> <span class=o>=</span> <span class=o>(</span><span class=n>Father</span><span class=o>)</span> <span class=n>father</span><span class=o>.</span><span class=na>clone</span><span class=o>(</span><span class=o>)</span><span class=o>;</span>
+        
+    	<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;原始对象和深拷贝对象是否相等: &#34;</span> <span class=o>+</span> <span class=n>father</span> <span class=o>=</span><span class=o>=</span> <span class=n>father_copy</span><span class=o>)</span><span class=o>;</span>
+    	<span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;原始对象和深拷贝对象的son是否相等: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span> <span class=o>=</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span><span class=o>)</span><span class=o>;</span>
+    	
+        <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;老王&#34;</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;name修改的原始对象name属性: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;name修改后的拷贝对象name属性: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        
+        <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span> <span class=o>=</span> <span class=s>&#34;小王&#34;</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,原始对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+        <span class=n>System</span><span class=o>.</span><span class=na>out</span><span class=o>.</span><span class=na>println</span><span class=o>(</span><span class=s>&#34;son的name属性修改后,拷贝对象的son的name属性: &#34;</span> <span class=o>+</span> <span class=n>father_copy</span><span class=o>.</span><span class=na>son</span><span class=o>.</span><span class=na>name</span><span class=o>)</span><span class=o>;</span>
+    <span class=o>}</span>
+<span class=o>}</span>
+</code></pre></td></tr></table></div></div><p>输出 :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-fallback data-lang=fallback>原始对象和深拷贝对象是否相等: false
+原始对象和深拷贝对象的son是否相等: false
+
+name修改的原始对象name属性: 大明
+name修改后的拷贝对象name属性: 老王
+
+son的name属性修改后,原始对象的son的name属性: 小明
+son的name属性修改后,拷贝对象的son的name属性: 小王
+</code></pre></td></tr></table></div></div><p>可以看到与浅拷贝不同的是，对于拷贝对象的引用类型属性son的name值修改，并不会影响到与原始对象。这是因为深拷贝对于引用类型不仅仅是拷贝了一个引用，而是在内存中新开辟了一块空间，把引用指向的实际内容复制了一份在新的内存空间中。</p><p><img src=https://i.loli.net/2020/01/17/u6GClgtSaPvyRok.png alt=4.png></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>本文于 2020-01-17 更新</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href="//twitter.com/share?url=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2fdeepcopy-shallowcopy%2f&text=%e6%b7%b1%e6%8b%b7%e8%b4%9dVS%e6%b5%85%e6%8b%b7%e8%b4%9d&via=EdisonZjs" target=_blank title="Share on Twitter"><i class="fab fa-twitter fa-fw"></i></a><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f01%2fdeepcopy-shallowcopy%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook-square fa-fw"></i></a></span></div></div></div><div class=post-info-more><section><span class=tag><a href=https://Edisonzjs.github.io/tags/%E5%9F%BA%E7%A1%80/><i class="fas fa-tag fa-fw"></i>基础</a></span></section><section><span><a href=javascript:window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://Edisonzjs.github.io/>主页</a></span></section></div><div class=post-nav><a href=https://Edisonzjs.github.io/2020/01/pass-by-val/ class=prev rel=prev title=值传递？引用传递？><i class="fas fa-angle-left fa-fw"></i>值传递？引用传递？</a>
+<a href=https://Edisonzjs.github.io/2020/01/io-model/ class=next rel=next title=五种IO模型>五种IO模型<i class="fas fa-angle-right fa-fw"></i></a></div></div><div class=post-comment></div></article></div></main><footer class=footer><div class=copyright><div class=copyright-line>由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreffer">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a></div><div class=copyright-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2018 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://Edisonzjs.github.io/>Edison</a></span><span class=license>&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer><script src=/js/lib/jquery/jquery.slim.min.min.js></script><script src=/js/lib/lazysizes/lazysizes.min.min.js></script><script src=/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js></script><script>window.scroll=new SmoothScroll('[data-scroll]',{speed:300,speedAsDuration:true});</script><script src=/js/blog.min.js></script></div><a href=# class=dynamic-to-top id=dynamic-to-top data-scroll><span>&nbsp;</span></a></body></html>
