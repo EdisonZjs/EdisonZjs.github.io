@@ -1,0 +1,100 @@
+<!doctype html><html lang=zh><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>字典 | Edison's blog | Java Developer</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=Description content="Edison的个人blog"><link rel=prev href=https://Edisonzjs.github.io/2020/02/redis-sds/><link rel=next href=https://Edisonzjs.github.io/2020/03/redis-skiplist/><link rel=canonical href=https://Edisonzjs.github.io/2020/03/reds-dict/><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><meta name=twitter:card content="summary"><meta name=twitter:title content="字典"><meta name=twitter:description content="1.字典的实现 redis中的字典是一种用于保存键值对映射关系的抽象数据结构，字典中每一个键都是独一无二的，可以根据键来操作与之关联的值。 re"><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"字典","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/Edisonzjs.github.io\/2020\/03\/reds-dict\/"},"image":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/cover.png","width":800,"height":600},"genre":"posts","keywords":"redis","wordcount":2896,"url":"https:\/\/Edisonzjs.github.io\/2020\/03\/reds-dict\/","datePublished":"2020-03-11T14:34:43\x2b08:00","dateModified":"2020-03-11T14:34:43\x2b08:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"XXXX","logo":{"@type":"ImageObject","url":"https:\/\/Edisonzjs.github.io\/logo.png","width":127,"height":40}},"description":""}</script><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/css/lib/fontawesome-free/all.min.min.css><link rel=stylesheet href=/css/lib/animate/animate.min.min.css></head><body><script>window.isDark=(window.localStorage&&window.localStorage.getItem('theme'))==='dark';window.isDark&&document.body.classList.add('dark-theme');</script><div class=wrapper><nav class=navbar><div class=navbar-container><div class="navbar-header animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=navbar-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><nav class=navbar-mobile><div class=navbar-container><div class=navbar-header><div class="navbar-header-title animated bounceIn"><a href=https://Edisonzjs.github.io/>Edison's blog | Java Developer</a></div><div class=menu-toggle id=menu-toggle><span></span><span></span><span></span></div></div><div class=navbar-menu id=mobile-menu><a class=menu-item href=https://Edisonzjs.github.io/posts>文章</a>
+<a class=menu-item href=https://Edisonzjs.github.io/tags>标签</a>
+<a class=menu-item href=https://Edisonzjs.github.io/categories>分类</a>
+<a class=menu-item href=https://Edisonzjs.github.io/about>关于</a>
+<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><main class=main><div class=container><article class=post-warp><h1 class="post-title animated flipInX">字典</h1><div class=post-meta><div class=post-meta-main><a class=author href=https://Edisonzjs.github.io/ rel=author><i class="fas fa-user-circle fa-fw"></i>Edison&nbsp;</a>
+<span class=post-category>收录于
+<i class="far fa-folder fa-fw"></i><a href=https://Edisonzjs.github.io/categories/redis/>redis</a></span></div><div class=post-meta-other><i class="far fa-calendar-alt fa-fw"></i><time datetime=2020-03-11>2020-03-11</time>&nbsp;
+<i class="fas fa-pencil-alt fa-fw"></i>约 2896 字&nbsp;
+<i class="far fa-clock fa-fw"></i>预计阅读 6 分钟&nbsp;</div></div><div class=post-toc id=post-toc><h2 class=post-toc-title>目录</h2><div class=post-toc-content><nav id=TableOfContents><ul><li><a href=#1字典的实现>1.字典的实现</a><ul><li><a href=#11-哈希表>1.1 哈希表</a></li><li><a href=#12-哈希表节点>1.2 哈希表节点</a></li><li><a href=#14-字典>1.4 字典</a></li></ul></li><li><a href=#2解决键冲突>2.解决键冲突</a></li><li><a href=#3渐进式的rehash>3.渐进式的rehash</a><ul><li><a href=#31-渐进式rehash执行期间的哈希表操作>3.1 渐进式rehash执行期间的哈希表操作</a></li></ul></li><li><a href=#参考>参考</a></li></ul></nav></div></div><div class=post-toc-mobile id=post-toc-mobile><details><summary><div class=post-toc-title><span>目录</span><span><i class="details icon fas fa-angle-down"></i></span></div></summary><div class=post-toc-content><nav id=TableOfContentsMobile><ul><li><a href=#1字典的实现>1.字典的实现</a><ul><li><a href=#11-哈希表>1.1 哈希表</a></li><li><a href=#12-哈希表节点>1.2 哈希表节点</a></li><li><a href=#14-字典>1.4 字典</a></li></ul></li><li><a href=#2解决键冲突>2.解决键冲突</a></li><li><a href=#3渐进式的rehash>3.渐进式的rehash</a><ul><li><a href=#31-渐进式rehash执行期间的哈希表操作>3.1 渐进式rehash执行期间的哈希表操作</a></li></ul></li><li><a href=#参考>参考</a></li></ul></nav></div></details></div><div class=post-content><a class=post-dummy-target id=1字典的实现></a><h2>1.字典的实现</h2><p><code>redis</code>中的字典是一种用于保存键值对映射关系的抽象数据结构，字典中每一个键都是独一无二的，可以根据键来操作与之关联的值。</p><p><code>redis</code>中字典的应用非常广泛，比如<code>redis</code>的数据库、哈希键等等。例如执行命令：<code>set zjs "handsome boy"</code>，在数据库中创建一个键为”zjs“，值为”handsome boy"的键值对，这个键值对就保存在数据库字典中。</p><p>字典使用哈希表作为底层实现，一个哈希表可以有多个哈希节点，每个哈希节点就保存了一个键值对。</p><a class=post-dummy-target id=11-哈希表></a><h3>1.1 哈希表</h3><p><code>redis</code>字典所使用的哈希表由<code>dict.h/dictht</code>结构定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=k>typedef</span> <span class=k>struct</span> <span class=n>dictht</span> <span class=p>{</span>
+	
+	<span class=c1>// 哈希表数组
+</span><span class=c1></span>	<span class=n>dictEntry</span> <span class=o>*</span><span class=o>*</span><span class=n>table</span><span class=p>;</span>
+	
+	<span class=c1>// 哈希表大小
+</span><span class=c1></span>	<span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>size</span><span class=p>;</span>
+	
+	<span class=c1>// 哈希大小掩码，用于计算索引值。总是等于size-1
+</span><span class=c1></span>	<span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>sizemask</span><span class=p>;</span>
+	
+	<span class=c1>// 哈希表已有节点的数量
+</span><span class=c1></span>	<span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>used</span><span class=p>;</span>
+<span class=p>}</span> <span class=n>dictht</span><span class=p>;</span>
+</code></pre></td></tr></table></div></div><p><code>table</code>属性是一个数组，数组中的每个元素都是一个指向<code>dict.h/dictEntry</code>结构的指针，每个<code>dictEntry</code>结构保存一个键值对。<code>size</code>属性记录了哈希表的大小，也就是table数组的大小。而used属性则记录了哈希表目前已经有的节点(键值对)的数量。<code>sizemask</code>属性和哈希值一起决定一个键应该被放在table数组的哪个索引上。</p><a class=post-dummy-target id=12-哈希表节点></a><h3>1.2 哈希表节点</h3><p>哈希表节点使用<code>dictEntry</code>结构表示，每个<code>dictEntry</code>结构都保存着一个键值对：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=k>typedef</span> <span class=k>struct</span> <span class=n>dictEntry</span> <span class=p>{</span>
+	
+	<span class=c1>// 键
+</span><span class=c1></span>	<span class=kt>void</span> <span class=o>*</span><span class=n>key</span><span class=p>;</span>
+	
+	<span class=c1>// 值
+</span><span class=c1></span>	<span class=k>union</span> <span class=p>{</span>
+		<span class=kt>void</span> <span class=o>*</span><span class=n>val</span><span class=p>;</span>
+		<span class=n>uint64_tu64</span><span class=p>;</span>
+		<span class=n>int64_ts64</span><span class=p>;</span>
+	<span class=p>}</span> <span class=n>v</span><span class=p>;</span>
+	
+	<span class=c1>// 指向下个哈希表节点，形成链表
+</span><span class=c1></span>	<span class=n>strcut</span> <span class=n>dictEntry</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
+<span class=p>}</span> <span class=n>dictEntry</span><span class=p>;</span>
+</code></pre></td></tr></table></div></div><p><code>key</code>属性保存着键值对中的键，而<code>v</code>属性则保存着键值对中的值，其中键值对的值可以是一个指针，或者是一个<code>uint64_t</code>整数，又或者是一个<code>int64_t</code>整数。<code>next</code>属性则是指向下一个哈希表节点的指针，这个指针可以将多个哈希值相同的键值对连接在一起形成一个链表，以此来解决键冲突的问题。</p><p>下图就展示了一个哈希表，键<code>k1</code>和<code>k2</code>哈希值相同，通过<code>next</code>指针相连。</p><p><img src=https://i.loli.net/2020/03/11/ZYrHQkvTKyUhEf7.png alt=image.png></p><a class=post-dummy-target id=14-字典></a><h3>1.4 字典</h3><p><code>redis</code>中的字典由<code>dict.h/dict</code>结构表示：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre class=chroma><code class=language-c data-lang=c><span class=k>typedef</span> <span class=k>struct</span> <span class=n>dict</span> <span class=p>{</span>
+	
+	<span class=c1>// 类型特定函数
+</span><span class=c1></span>	<span class=n>dictType</span> <span class=o>*</span><span class=n>type</span><span class=p>;</span>
+	
+	<span class=c1>// 私有数据
+</span><span class=c1></span>	<span class=kt>void</span> <span class=o>*</span><span class=n>privdata</span><span class=p>;</span>
+	
+	<span class=c1>// 哈希表
+</span><span class=c1></span>	<span class=n>dictht</span> <span class=n>ht</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span><span class=p>;</span>
+	
+	<span class=c1>// rehash索引，当rehash不在进行时，值为-1
+</span><span class=c1></span>	<span class=n>in</span> <span class=n>trehashidx</span><span class=p>;</span>
+<span class=p>}</span> <span class=n>dict</span><span class=p>;</span>
+</code></pre></td></tr></table></div></div><p><code>ht</code>属性是一个包含两个哈希表的数组。一般情况下，字典只使用<code>ht[0]</code>哈希表，<code>ht[1]</code>哈希表只有在哈希表进行<code>rehash</code>时使用。<code>rehashidx</code>属性记录了rehash目前的进度，如果目前没有在进行<code>rehash</code>，那么它的值为-1。</p><p>下图是一个常规状态下(没有正在rehash)的字典</p><p><img src=https://i.loli.net/2020/03/11/sJN6XKcuqGk7xDi.png alt=image.png></p><a class=post-dummy-target id=2解决键冲突></a><h2>2.解决键冲突</h2><p>当有两个或以上数量的键被分配到了哈希表数组的同一个索引上面时，我们称这些键发生了冲突。<code>redis</code>的哈希表使用链地址法来解决键冲突，每个哈希表节点都有一个next指针，多个哈希表节点可以用next指针构成一个单向链表，被分配到同一个索引上的多个节点可以用这个单向链表连接起来，这就解决了键冲突的问题。</p><p><img src=https://i.loli.net/2020/03/11/czaU5OCmNnXLGEk.png alt=image.png></p><p>举个例子，假设要将键值对<code>k2</code>和<code>v2</code>添加到上图的哈希表中。经过计算得出<code>k2</code>的索引值为1，那么键<code>k1</code>和<code>k2</code>将产生冲突，而解决冲突的办法就是使用next指针将键<code>k1</code>和<code>k2</code>所在的节点连接起来，如下图：</p><p><img src=https://i.loli.net/2020/03/11/iwLRDjBtUIOzJsQ.png alt=image.png></p><a class=post-dummy-target id=3渐进式的rehash></a><h2>3.渐进式的rehash</h2><p>随着操作的不断执行，哈希表保存的键值对会逐渐的增多或减少，为了让哈希表的负载因子维持在一个合理的范围之内，当哈希表保存的键值对数量太多或太少时，程序需要对哈希表的大小进行相应的扩展或收缩。</p><p>扩展和收缩哈希表可以通过执行rehash操作来完成，<code>redis</code>对字典的哈希表执行rehash的步骤如下：</p><ol><li>为字典的ht[1]哈希表分配空间，这个哈希表的空间大小取决于要执行的操作，以及ht[0]当前包含的键值对数量(即ht[0].used属性的值)<ul><li>如果执行的是扩展操作，那么ht[1]的大小为第一个大于等于<code>ht[0].used * 2</code>的<code>2^n(2的n次方)</code></li><li>如果执行的是收缩操作，那么ht[1]的大小为第一个大于等于<code>ht[0].used</code>的<code>2^n</code></li></ul></li><li>将保存在ht[0]中的所有键值对rehash到ht[1]上</li><li>当ht[0]包含的所有键值对都迁移到了ht[1]之后，释放ht[0]，将ht[1]设置为ht[0]，并在ht[1]新创建一个空白哈希表，为下一次rehash做准备</li></ol><p>下图就展示了一个rehash过程：</p><p>​ <img src=https://i.loli.net/2020/03/12/Fiaw9eJz8tPgAhl.png alt=image.png></p><ol><li><p>ht[0].used的值为4，4*2=8，第一个大于等于8的2^n就是恰好就是8(2³)，所以ht[1]哈希表的大小设置为8。下图是在ht[1]分配空间之后，字典的样子。</p><p><img src=https://i.loli.net/2020/03/12/zDiYQkqA7uXBIOh.png alt=image.png></p></li><li><p>将ht[0]包含的四个键值对都rehash到ht[1]</p><p><img src=https://i.loli.net/2020/03/12/sh4pdGkrbu1UxJP.png alt=image.png></p></li><li><p>释放ht[0]，并将ht[1]设置为ht[0]，然后为ht[1]分配一个空白哈希表。至此，对哈希表的扩展操作执行完毕。</p></li></ol><p><img src=https://i.loli.net/2020/03/12/yxAkif3weq541oj.png alt=image.png></p><p>当满足以下任意一个条件时，程序会自动开始对哈希表执行扩展操作：</p><ol><li>服务器目前没有执行BGSAVE命令或者BGREWRITEAOF命令，并且哈希表的负载因子大于等于1。</li><li>服务器目前正在执行BGSAVE命令或者BGREWRITEAOF命令，并且哈希表的负载因子大于等于5。<ul><li>其中哈希表的负载因子可以通过公式：<code>load_factor = ht[0].used ÷ ht[0].size</code>计算得出</li></ul></li></ol><p>在把<code>ht[0]</code>哈希表中的所有键值对重新rehash到<code>ht[1]</code>里面，这个rehash动作并不是一次性、集中式的完成的，而是分多次、渐进式的完成的。因为如果<code>ht[0]</code>里面有几千万个键值对，那一次性全部rehash到<code>ht[1]</code>里面不得卡死。</p><p>以下是哈希表渐进式rehash的详细步骤：</p><ol><li>为<code>ht[1]</code>分配空间，让字典同时持有<code>ht[0]</code>和<code>ht[1]</code>两个哈希表。</li><li>在字典中维持一个索引计数器变量<code>rehashidx</code>，并将它的值设置为0，表示<code>rehash</code>工作正式开始。</li><li>在<code>rehash</code>进行期间，每次对字典执行添加、删除、查找或者更新操作时，程序除了执行指定的操作以外，还会顺带将<code>ht[0]</code>哈希表在<code>rehashidx</code>索引上的所有键值对<code>rehash</code>到<code>ht[1]</code>上，当<code>rehash</code>工作完成之后，程序将<code>rehashidx</code>属性的值加一。</li><li>随着字典操作的不断执行，最终在某个时间点上，<code>ht[0]</code>的所有键值对都会被<code>rehash</code>至<code>ht[1]</code>，这时程序将<code>rehashidx</code>属性的值设置为-1，表示<code>rehash</code>操作完成。</li></ol><p>渐进式<code>rehash</code>的好处就是在于它采用分而治之的思想，将<code>rehash</code>键值对所需的计算工作均摊到每个添加、删除、查找和更新操作上，从而避免了集中式<code>rehash</code>带来的庞大计算量。</p><p>下图展示了一个渐进式rehash的过程：</p><p><img src=https://i.loli.net/2020/03/12/5kLupwbjFNEZrRK.png alt=image.png></p><p>   </p><p><img src=https://i.loli.net/2020/03/12/GHD8o95RbVes1TE.png alt=image.png></p><p>  </p><p><img src=https://i.loli.net/2020/03/12/kUj4s1y2vpne786.png alt=image.png></p><p>  </p><p><img src=https://i.loli.net/2020/03/12/aG1z7uJ5dWMcFKg.png alt=image.png></p><p><img src=https://i.loli.net/2020/03/12/UvF2DBp9LomcWk8.png alt=image.png></p><p><img src=https://i.loli.net/2020/03/12/n7KB8UTPpjHGgEd.png alt=image.png></p><a class=post-dummy-target id=31-渐进式rehash执行期间的哈希表操作></a><h3>3.1 渐进式rehash执行期间的哈希表操作</h3><p>因为在进行渐进式rehash过程中，字典会同时使用ht[0]和ht[1]两个哈希表，所以在渐进式rehash进行期间，字典的删除、查找、更新等操作会在两个哈希表中进行。例如要查找一个键，程序会先在ht[0]里进行查找，如果找到就返回，没找到就继续到ht[1]里进行查找。</p><p>另外，在渐进式rehash执行期间，新添加的键值对一律保存到ht[1]里面，而ht[0]不再进行任何添加操作，这一措施保证了ht[0]的键值对数量只减不增，并随着rehash操作的执行最终变成空表。</p><a class=post-dummy-target id=参考></a><h2>参考</h2><p><a href=http://redisbook.com/>Redis设计与实现</a></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>本文于 2020-03-11 更新</span></div><div class=post-info-license></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href="//twitter.com/share?url=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f03%2freds-dict%2f&text=%e5%ad%97%e5%85%b8&via=EdisonZjs" target=_blank title="Share on Twitter"><i class="fab fa-twitter fa-fw"></i></a><a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fEdisonzjs.github.io%2f2020%2f03%2freds-dict%2f" target=_blank title="Share on Facebook"><i class="fab fa-facebook-square fa-fw"></i></a></span></div></div></div><div class=post-info-more><section><span class=tag><a href=https://Edisonzjs.github.io/tags/redis/><i class="fas fa-tag fa-fw"></i>redis</a></span></section><section><span><a href=javascript:window.history.back();>返回</a></span>&nbsp;|&nbsp;<span><a href=https://Edisonzjs.github.io/>主页</a></span></section></div><div class=post-nav><a href=https://Edisonzjs.github.io/2020/02/redis-sds/ class=prev rel=prev title=SDS><i class="fas fa-angle-left fa-fw"></i>SDS</a>
+<a href=https://Edisonzjs.github.io/2020/03/redis-skiplist/ class=next rel=next title="Redis 跳跃表">Redis 跳跃表<i class="fas fa-angle-right fa-fw"></i></a></div></div><div class=post-comment></div></article></div></main><footer class=footer><div class=copyright><div class=copyright-line>由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreffer">Hugo</a> 强力驱动&nbsp;|&nbsp;主题 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a></div><div class=copyright-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2018 - 2020</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://Edisonzjs.github.io/>Edison</a></span><span class=license>&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer><script src=/js/lib/jquery/jquery.slim.min.min.js></script><script src=/js/lib/lazysizes/lazysizes.min.min.js></script><script src=/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js></script><script>window.scroll=new SmoothScroll('[data-scroll]',{speed:300,speedAsDuration:true});</script><script src=/js/blog.min.js></script></div><a href=# class=dynamic-to-top id=dynamic-to-top data-scroll><span>&nbsp;</span></a></body></html>
